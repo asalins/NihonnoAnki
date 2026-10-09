@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แฟลชการ์ด คำกริยาญี่ปุ่น กลุ่ม 1·2·3</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --accent1: #3b82f6;
+    --accent2: #10b981;
+    --accent3: #f59e0b;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Sarabun", "Noto Sans Thai", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+  }
+  h1 {
+    font-size: 1.4rem;
+    margin-bottom: 0.3rem;
+    text-align: center;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 1.2rem;
+  }
+  button, select {
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  button:hover, select:hover { background: #334155; }
+  button.active { outline: 2px solid var(--accent1); }
+  .group-btn.g1.active { outline-color: var(--accent1); }
+  .group-btn.g2.active { outline-color: var(--accent2); }
+  .group-btn.g3.active { outline-color: var(--accent3); }
+  .progress {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.8rem;
+  }
+  .card-container {
+    perspective: 1200px;
+    width: min(440px, 95vw);
+    height: 320px;
+    margin-bottom: 1.5rem;
+  }
+  .card {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
+    cursor: pointer;
+  }
+  .card.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  }
+  .front {
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    border: 2px solid #334155;
+  }
+  .back {
+    background: linear-gradient(145deg, #1e3a5f, #0f172a);
+    border: 2px solid #3b82f6;
+    transform: rotateY(180deg);
+  }
+  .group-tag {
+    position: absolute;
+    top: 12px;
+    left: 14px;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 600;
+  }
+  .g1 .group-tag { background: #1e40af; color: #bfdbfe; }
+  .g2 .group-tag { background: #065f46; color: #a7f3d0; }
+  .g3 .group-tag { background: #92400e; color: #fde68a; }
+  .jp {
+    font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    text-align: center;
+  }
+  .label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 0.2rem;
+  }
+  .meaning {
+    font-size: 1.15rem;
+    text-align: center;
+    line-height: 1.4;
+    margin-top: 0.6rem;
+  }
+  .forms {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.55rem 1.1rem;
+    width: 100%;
+    margin-top: 0.7rem;
+  }
+  .forms div {
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px dashed #334155;
+    padding-bottom: 5px;
+  }
+  .forms .f-val {
+    font-family: "Noto Sans JP", sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #e2e8f0;
+  }
+  .forms .f-mean {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 2px;
+    line-height: 1.25;
+  }
+  .nav {
+    display: flex;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+  }
+  .nav button {
+    min-width: 100px;
+    font-size: 1rem;
+  }
+  .hint {
+    color: var(--muted);
+    font-size: 0.75rem;
+    text-align: center;
+  }
+  .mode-toggle {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 0.8rem;
+  }
+  @media (max-width: 480px) {
+    .jp { font-size: 1.5rem; }
+    .card-container { height: 340px; }
+  }
+</style>
+</head>
+<body>
+  <h1>แฟลชการ์ด คำกริยาญี่ปุ่น</h1>
+  <p class="subtitle">กลุ่ม 1 · 2 · 3 — แตะการ์ดเพื่อพลิก · กดลูกศรเพื่อเปลี่ยนใบ</p>
+
+  <div class="controls">
+    <button class="group-btn g1 active" data-group="1">กลุ่ม 1</button>
+    <button class="group-btn g2 active" data-group="2">กลุ่ม 2</button>
+    <button class="group-btn g3 active" data-group="3">กลุ่ม 3</button>
+    <button id="shuffleBtn">สุ่ม</button>
+    <button id="resetBtn">รีเซ็ต</button>
+  </div>
+
+  <div class="mode-toggle">
+    <button id="modeDict" class="active">ます → ความหมาย</button>
+    <button id="modeMean">ความหมาย → ます</button>
+  </div>
+
+  <div class="progress" id="progress">1 / 107</div>
+
+  <div class="card-container">
+    <div class="card" id="card">
+      <div class="face front" id="front">
+        <span class="group-tag" id="tag">กลุ่ม 1</span>
+        <div class="label" id="frontLabel">รูปます</div>
+        <div class="jp" id="frontJP">はたらきます</div>
+      </div>
+      <div class="face back" id="back">
+        <span class="group-tag" id="tagBack">กลุ่ม 1</span>
+        <div class="label" id="backLabel">ความหมาย</div>
+        <div class="meaning" id="meaning">ทำงาน</div>
+        <div class="forms" id="forms">
+          <div>
+            <span class="f-val" id="fDict">はたらく</span>
+            <span class="f-mean" id="mDict">ทำงาน</span>
+          </div>
+          <div>
+            <span class="f-val" id="fTe">はたらいて</span>
+            <span class="f-mean" id="mTe">กำลังทำงาน / ทำงานแล้ว...</span>
+          </div>
+          <div>
+            <span class="f-val" id="fNai">はたらかない</span>
+            <span class="f-mean" id="mNai">ไม่ทำงาน</span>
+          </div>
+          <div>
+            <span class="f-val" id="fTa">はたらいた</span>
+            <span class="f-mean" id="mTa">ทำงานแล้ว</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button id="prevBtn">← ก่อนหน้า</button>
+    <button id="flipBtn">พลิก</button>
+    <button id="nextBtn">ถัดไป →</button>
+  </div>
+  <p class="hint">แป้นพิมพ์: ← → พลิก (Space / Enter) · S = สุ่ม</p>
+
+<script>
+const verbs = [
+  // Group 1
+  {g:1, dict:"はたらく", masu:"はたらきます", te:"はたらいて", nai:"はたらかない", ta:"はたらいた", mean:"ทำงาน"},
+  {g:1, dict:"はなす", masu:"はなします", te:"はなして", nai:"はなさない", ta:"はなした", mean:"พูด, คุย"},
+  {g:1, dict:"はらう", masu:"はらいます", te:"はらって", nai:"はらわない", ta:"はらった", mean:"จ่าย, ชำระ (เงิน)"},
+  {g:1, dict:"ひく", masu:"ひきます", te:"ひいて", nai:"ひかない", ta:"ひいた", mean:"ดีด/เล่น (เปียโน ฯลฯ) / ดึง"},
+  {g:1, dict:"ふる", masu:"ふります", te:"ふって", nai:"ふらない", ta:"ふった", mean:"[ฝน] ตก"},
+  {g:1, dict:"まがる", masu:"まがります", te:"まがって", nai:"まがらない", ta:"まがった", mean:"เลี้ยว [ไปทางขวา]"},
+  {g:1, dict:"まつ", masu:"まちます", te:"まって", nai:"またない", ta:"まった", mean:"คอย, รอ"},
+  {g:1, dict:"まわす", masu:"まわします", te:"まわして", nai:"まわさない", ta:"まわした", mean:"หมุน"},
+  {g:1, dict:"もつ", masu:"もちます", te:"もって", nai:"もたない", ta:"もった", mean:"ถือ"},
+  {g:1, dict:"もっていく", masu:"もっていきます", te:"もっていって", nai:"もっていかない", ta:"もっていった", mean:"นำ (สิ่งของ) ไป, ถือไป"},
+  {g:1, dict:"もらう", masu:"もらいます", te:"もらって", nai:"もらわない", ta:"もらった", mean:"ได้รับ"},
+  {g:1, dict:"やくにたつ", masu:"やくにたちます", te:"やくにたって", nai:"やくにたたない", ta:"やくにたった", mean:"เป็นประโยชน์, มีประโยชน์"},
+  {g:1, dict:"やすむ", masu:"やすみます", te:"やすんで", nai:"やすまない", ta:"やすんだ", mean:"พัก, พักผ่อน / หยุด [งาน]"},
+  {g:1, dict:"よぶ", masu:"よびます", te:"よんで", nai:"よばない", ta:"よんだ", mean:"เรียก (ชื่อ รถแท็กซี่ ฯลฯ)"},
+  {g:1, dict:"よむ", masu:"よみます", te:"よんで", nai:"よまない", ta:"よんだ", mean:"อ่าน"},
+  {g:1, dict:"わかる", masu:"わかります", te:"わかって", nai:"わからない", ta:"わかった", mean:"เข้าใจ, รู้"},
+  {g:1, dict:"わたる", masu:"わたります", te:"わたって", nai:"わたらない", ta:"わたった", mean:"ข้าม [สะพาน]"},
+  {g:1, dict:"きく", masu:"ききます", te:"きいて", nai:"きかない", ta:"きいた", mean:"ฟัง, ได้ยิน / ถาม [ครู]"},
+  {g:1, dict:"きる", masu:"きります", te:"きって", nai:"きらない", ta:"きった", mean:"ตัด"},
+  {g:1, dict:"けす", masu:"けします", te:"けして", nai:"けさない", ta:"けした", mean:"ปิด (ไฟ ฯลฯ), ดับ (ไฟ)"},
+  {g:1, dict:"さわる", masu:"さわります", te:"さわって", nai:"さわらない", ta:"さわった", mean:"จับ, แตะ, สัมผัส"},
+  {g:1, dict:"しる", masu:"しります", te:"しって", nai:"しらない", ta:"しった", mean:"รู้, รู้จัก"},
+  {g:1, dict:"すう", masu:"すいます", te:"すって", nai:"すわない", ta:"すった", mean:"สูบ [บุหรี่]"},
+  {g:1, dict:"すむ", masu:"すみます", te:"すんで", nai:"すまない", ta:"すんだ", mean:"อยู่, อาศัยอยู่"},
+  {g:1, dict:"すわる", masu:"すわります", te:"すわって", nai:"すわらない", ta:"すわった", mean:"นั่ง, นั่งลง"},
+  {g:1, dict:"だす", masu:"だします", te:"だして", nai:"ださない", ta:"だした", mean:"เอาออก, ยื่น, ส่ง (รายงาน)"},
+  {g:1, dict:"たつ", masu:"たちます", te:"たって", nai:"たたない", ta:"たった", mean:"ยืน, ยืนขึ้น"},
+  {g:1, dict:"つかう", masu:"つかいます", te:"つかって", nai:"つかわない", ta:"つかった", mean:"ใช้"},
+  {g:1, dict:"つく", masu:"つきます", te:"ついて", nai:"つかない", ta:"ついた", mean:"ถึงที่หมาย"},
+  {g:1, dict:"つくる", masu:"つくります", te:"つくって", nai:"つくらない", ta:"つくった", mean:"ทำ (อาหาร), สร้าง, ผลิต"},
+  {g:1, dict:"つれていく", masu:"つれていきます", te:"つれていって", nai:"つれていかない", ta:"つれていった", mean:"พา (คน) ไป"},
+  {g:1, dict:"てつだう", masu:"てつだいます", te:"てつだって", nai:"てつだわない", ta:"てつだった", mean:"ช่วยเหลือ, ช่วย (งาน)"},
+  {g:1, dict:"とまる", masu:"とまります", te:"とまって", nai:"とまらない", ta:"とまった", mean:"ค้าง, พัก [ที่โรงแรม]"},
+  {g:1, dict:"とる", masu:"とります", te:"とって", nai:"とらない", ta:"とった", mean:"หยิบ / ถ่าย [รูป] / [อายุ] มากขึ้น"},
+  {g:1, dict:"なおす", masu:"なおします", te:"なおして", nai:"なおさない", ta:"なおした", mean:"ซ่อมแซม, แก้ไข"},
+  {g:1, dict:"なくす", masu:"なくします", te:"なくして", nai:"なくさない", ta:"なくした", mean:"ทำหาย"},
+  {g:1, dict:"ならう", masu:"ならいます", te:"ならって", nai:"ならわない", ta:"ならった", mean:"เรียน (โดยมีผู้สอน)"},
+  {g:1, dict:"なる", masu:"なります", te:"なって", nai:"ならない", ta:"なった", mean:"กลายเป็น, (โต) ขึ้น"},
+  {g:1, dict:"ぬぐ", masu:"ぬぎます", te:"ぬいで", nai:"ぬがない", ta:"ぬいだ", mean:"ถอด (เสื้อผ้า รองเท้า ฯลฯ)"},
+  {g:1, dict:"のぼる", masu:"のぼります", te:"のぼって", nai:"のぼらない", ta:"のぼった", mean:"ปีน, ไต่ (เขา)"},
+  {g:1, dict:"のむ", masu:"のみます", te:"のんで", nai:"のまない", ta:"のんだ", mean:"ดื่ม / กิน [ยา]"},
+  {g:1, dict:"のる", masu:"のります", te:"のって", nai:"のらない", ta:"のった", mean:"ขึ้น [รถไฟ], ขี่"},
+  {g:1, dict:"はいる", masu:"はいります", te:"はいって", nai:"はいらない", ta:"はいった", mean:"เข้า / อาบน้ำ"},
+  {g:1, dict:"はく", masu:"はきます", te:"はいて", nai:"はかない", ta:"はいた", mean:"สวม, ใส่ (รองเท้า กางเกง ฯลฯ)"},
+  // Group 2
+  {g:2, dict:"あける", masu:"あけます", te:"あけて", nai:"あけない", ta:"あけた", mean:"เปิด (ประตู, หน้าต่าง)"},
+  {g:2, dict:"あげる", masu:"あげます", te:"あげて", nai:"あげない", ta:"あげた", mean:"ให้"},
+  {g:2, dict:"あつめる", masu:"あつめます", te:"あつめて", nai:"あつめない", ta:"あつめた", mean:"สะสม, รวบรวม"},
+  {g:2, dict:"あびる", masu:"あびます", te:"あびて", nai:"あびない", ta:"あびた", mean:"อาบน้ำ [ฝักบัว]"},
+  {g:2, dict:"いる", masu:"います", te:"いて", nai:"いない", ta:"いた", mean:"มี, อยู่ (คน/สัตว์) / มี [ลูก]"},
+  {g:2, dict:"いれる", masu:"いれます", te:"いれて", nai:"いれない", ta:"いれた", mean:"ใส่เข้าไป"},
+  {g:2, dict:"うまれる", masu:"うまれます", te:"うまれて", nai:"うまれない", ta:"うまれた", mean:"เกิด"},
+  {g:2, dict:"おきる", masu:"おきます", te:"おきて", nai:"おきない", ta:"おきた", mean:"ตื่นนอน"},
+  {g:2, dict:"おしえる", masu:"おしえます", te:"おしえて", nai:"おしえない", ta:"おしえた", mean:"สอน / บอก [ที่อยู่]"},
+  {g:2, dict:"おぼえる", masu:"おぼえます", te:"おぼえて", nai:"おぼえない", ta:"おぼえた", mean:"จำ, จดจำ"},
+  {g:2, dict:"おりる", masu:"おります", te:"おりて", nai:"おりない", ta:"おりた", mean:"ลง [จากรถไฟ]"},
+  {g:2, dict:"かえる", masu:"かえます", te:"かえて", nai:"かえない", ta:"かえた", mean:"แลกเปลี่ยน / เปลี่ยน"},
+  {g:2, dict:"かける", masu:"かけます", te:"かけて", nai:"かけない", ta:"かけた", mean:"พูด [โทรศัพท์] / สวม [แว่น]"},
+  {g:2, dict:"かりる", masu:"かります", te:"かりて", nai:"かりない", ta:"かりた", mean:"ยืม, ขอยืม"},
+  {g:2, dict:"かんがえる", masu:"かんがえます", te:"かんがえて", nai:"かんがえない", ta:"かんがえた", mean:"ครุ่นคิด, นึก, คิด"},
+  {g:2, dict:"きる", masu:"きます", te:"きて", nai:"きない", ta:"きた", mean:"สวม, ใส่ (เสื้อเชิ้ต ฯลฯ)"},
+  {g:2, dict:"きをつける", masu:"きをつけます", te:"きをつけて", nai:"きをつけない", ta:"きをつけた", mean:"ระมัดระวัง, รักษาสุขภาพ"},
+  {g:2, dict:"くれる", masu:"くれます", te:"くれて", nai:"くれない", ta:"くれた", mean:"(เขา) ให้ (ฉัน)"},
+  {g:2, dict:"しめる", masu:"しめます", te:"しめて", nai:"しめない", ta:"しめた", mean:"ปิด (ประตู, หน้าต่าง)"},
+  {g:2, dict:"しらべる", masu:"しらべます", te:"しらべて", nai:"しらべない", ta:"しらべた", mean:"ตรวจ, สำรวจ, ตรวจสอบ"},
+  {g:2, dict:"すてる", masu:"すてます", te:"すてて", nai:"すてない", ta:"すてた", mean:"ทิ้ง"},
+  {g:2, dict:"たべる", masu:"たべます", te:"たべて", nai:"たべない", ta:"たべた", mean:"กิน, รับประทาน"},
+  {g:2, dict:"たりる", masu:"たります", te:"たりて", nai:"たりない", ta:"たりた", mean:"เพียงพอ"},
+  {g:2, dict:"つかれる", masu:"つかれます", te:"つかれて", nai:"つかれない", ta:"つかれた", mean:"เหนื่อย"},
+  {g:2, dict:"つける", masu:"つけます", te:"つけて", nai:"つけない", ta:"つけた", mean:"เปิด (ไฟ เครื่องปรับอากาศ ฯลฯ)"},
+  {g:2, dict:"でかける", masu:"でかけます", te:"でかけて", nai:"でかけない", ta:"でかけた", mean:"ออกไปข้างนอก"},
+  {g:2, dict:"できる", masu:"できます", te:"できて", nai:"できない", ta:"できた", mean:"สามารถ ~ ได้, ~ ได้, ~ เป็น"},
+  {g:2, dict:"でる", masu:"でます", te:"でて", nai:"でない", ta:"でた", mean:"ออก / จบการศึกษา"},
+  {g:2, dict:"とめる", masu:"とめます", te:"とめて", nai:"とめない", ta:"とめた", mean:"หยุด, จอด (รถ)"},
+  {g:2, dict:"ねる", masu:"ねます", te:"ねて", nai:"ねない", ta:"ねた", mean:"นอน, เข้านอน"},
+  {g:2, dict:"のりかえる", masu:"のりかえます", te:"のりかえて", nai:"のりかえない", ta:"のりかえた", mean:"เปลี่ยนรถ, ต่อ (รถไฟ ฯลฯ)"},
+  {g:2, dict:"はじめる", masu:"はじめます", te:"はじめて", nai:"はじめない", ta:"はじめた", mean:"เริ่ม, เริ่มต้น"},
+  {g:2, dict:"まける", masu:"まけます", te:"まけて", nai:"まけない", ta:"まけた", mean:"แพ้"},
+  {g:2, dict:"みせる", masu:"みせます", te:"みせて", nai:"みせない", ta:"みせた", mean:"เอา ... ให้ดู"},
+  {g:2, dict:"みる", masu:"みます", te:"みて", nai:"みない", ta:"みた", mean:"ดู, มอง"},
+  {g:2, dict:"むかえる", masu:"むかえます", te:"むかえて", nai:"むかえない", ta:"むかえた", mean:"(ไป) รับ (คน), ต้อนรับ"},
+  {g:2, dict:"やめる", masu:"やめます", te:"やめて", nai:"やめない", ta:"やめた", mean:"ลาออก, หยุด, เลิก"},
+  {g:2, dict:"わすれる", masu:"わすれます", te:"わすれて", nai:"わすれない", ta:"わすれた", mean:"ลืม"},
+  // Group 3
+  {g:3, dict:"あんないする", masu:"あんないします", te:"あんないして", nai:"あんないしない", ta:"あんないした", mean:"นำชม, นำทาง, พาเที่ยว"},
+  {g:3, dict:"うんてんする", masu:"うんてんします", te:"うんてんして", nai:"うんてんしない", ta:"うんてんした", mean:"ขับรถ"},
+  {g:3, dict:"かいものする", masu:"かいものします", te:"かいものして", nai:"かいものしない", ta:"かいものした", mean:"ซื้อของ, ช้อปปิ้ง"},
+  {g:3, dict:"くる", masu:"きます", te:"きて", nai:"こない", ta:"きた", mean:"มา"},
+  {g:3, dict:"けっこんする", masu:"けっこんします", te:"けっこんして", nai:"けっこんしない", ta:"けっこんした", mean:"แต่งงาน"},
+  {g:3, dict:"けんがくする", masu:"けんがくします", te:"けんがくして", nai:"けんがくしない", ta:"けんがくした", mean:"ทัศนศึกษา, เยี่ยมชม"},
+  {g:3, dict:"けんきゅうする", masu:"けんきゅうします", te:"けんきゅうして", nai:"けんきゅうしない", ta:"けんきゅうした", mean:"ค้นคว้า, วิจัย"},
+  {g:3, dict:"コピーする", masu:"コピーします", te:"コピーして", nai:"コピーしない", ta:"コピーした", mean:"ถ่ายเอกสาร"},
+  {g:3, dict:"さんぽする", masu:"さんぽします", te:"さんぽして", nai:"さんぽしない", ta:"さんぽした", mean:"เดินเล่น [ในสวนสาธารณะ]"},
+  {g:3, dict:"ざんぎょうする", masu:"ざんぎょうします", te:"ざんぎょうして", nai:"ざんぎょうしない", ta:"ざんぎょうした", mean:"ทำงานล่วงเวลา"},
+  {g:3, dict:"する", masu:"します", te:"して", nai:"しない", ta:"した", mean:"ทำ, ดำเนินการ, เล่น / ผูก [เนกไท]"},
+  {g:3, dict:"しゅうりする", masu:"しゅうりします", te:"しゅうりして", nai:"しゅうりしない", ta:"しゅうりした", mean:"ซ่อมแซม, แก้ไข"},
+  {g:3, dict:"しゅっちょうする", masu:"しゅっちょうします", te:"しゅっちょうして", nai:"しゅっちょうしない", ta:"しゅっちょうした", mean:"ไปทำงานนอกสถานที่"},
+  {g:3, dict:"しょうかいする", masu:"しょうかいします", te:"しょうかいして", nai:"しょうかいしない", ta:"しょうかいした", mean:"แนะนำ"},
+  {g:3, dict:"しょくじする", masu:"しょくじします", te:"しょくじして", nai:"しょくじしない", ta:"しょくじした", mean:"รับประทานอาหาร"},
+  {g:3, dict:"しんぱいする", masu:"しんぱいします", te:"しんぱいして", nai:"しんぱいしない", ta:"しんぱいした", mean:"เป็นห่วง, เป็นกังวล"},
+  {g:3, dict:"せつめいする", masu:"せつめいします", te:"せつめいして", nai:"せつめいしない", ta:"せつめいした", mean:"อธิบาย"},
+  {g:3, dict:"せんたくする", masu:"せんたくします", te:"せんたくして", nai:"せんたくしない", ta:"せんたくした", mean:"ซัก (ผ้า)"},
+  {g:3, dict:"そうじする", masu:"そうじします", te:"そうじして", nai:"そうじしない", ta:"そうじした", mean:"ทำความสะอาด (ห้อง)"},
+  {g:3, dict:"つれてくる", masu:"つれてきます", te:"つれてきて", nai:"つれてこない", ta:"つれてきた", mean:"พา (คน) มา"},
+  {g:3, dict:"でんわする", masu:"でんわします", te:"でんわして", nai:"でんわしない", ta:"でんわした", mean:"โทรศัพท์"},
+  {g:3, dict:"べんきょうする", masu:"べんきょうします", te:"べんきょうして", nai:"べんきょうしない", ta:"べんきょうした", mean:"เรียน"},
+  {g:3, dict:"もってくる", masu:"もってきます", te:"もってきて", nai:"もってこない", ta:"もってきた", mean:"นำ (สิ่งของ) มา"},
+  {g:3, dict:"よやくする", masu:"よやくします", te:"よやくして", nai:"よやくしない", ta:"よやくした", mean:"จอง"},
+  {g:3, dict:"りゅうがくする", masu:"りゅうがくします", te:"りゅうがくして", nai:"りゅうがくしない", ta:"りゅうがくした", mean:"ศึกษาที่ต่างประเทศ"},
+];
+
+let filtered = [...verbs];
+let idx = 0;
+let flipped = false;
+let mode = "dict"; // "dict" or "mean"
+let activeGroups = new Set([1,2,3]);
+
+const card = document.getElementById("card");
+const frontJP = document.getElementById("frontJP");
+const frontLabel = document.getElementById("frontLabel");
+const meaning = document.getElementById("meaning");
+const fDict = document.getElementById("fDict");
+const fTe = document.getElementById("fTe");
+const fNai = document.getElementById("fNai");
+const fTa = document.getElementById("fTa");
+const mDict = document.getElementById("mDict");
+const mTe = document.getElementById("mTe");
+const mNai = document.getElementById("mNai");
+const mTa = document.getElementById("mTa");
+const tag = document.getElementById("tag");
+const tagBack = document.getElementById("tagBack");
+const progress = document.getElementById("progress");
+const front = document.getElementById("front");
+const back = document.getElementById("back");
+
+/** สร้างคำแปลของแต่ละรูปจากความหมายหลัก */
+function formMeanings(base) {
+  // ตัดส่วนในวงเล็บออกเพื่อให้แปลดูสะอาด
+  const clean = base.replace(/\s*[\[\(].*?[\]\)]/g, "").trim();
+  // กรณีมีหลายความหมาย คั่นด้วย ,
+  const parts = clean.split(/\s*,\s*/).map(p => p.trim()).filter(Boolean);
+  const main = parts[0] || clean;
+
+  return {
+    dict: base,                                    // รูปธรรมดา = ความหมายเดิม
+    te:   "กำลัง" + main + " / " + main + "แล้ว...", // て-form
+    nai:  "ไม่" + main,                             // ปฏิเสธ
+    ta:   main + "แล้ว"                            // อดีต
+  };
+}
+
+function applyFilter() {
+  filtered = verbs.filter(v => activeGroups.has(v.g));
+  if (filtered.length === 0) filtered = [...verbs];
+  idx = 0;
+  flipped = false;
+  render();
+}
+
+function render() {
+  if (filtered.length === 0) return;
+  const v = filtered[idx];
+  const gClass = "g" + v.g;
+  front.className = "face front " + gClass;
+  back.className = "face back " + gClass;
+  tag.textContent = "กลุ่ม " + v.g;
+  tagBack.textContent = "กลุ่ม " + v.g;
+
+  const backLabel = document.getElementById("backLabel");
+  if (mode === "dict") {
+    frontLabel.textContent = "รูปます";
+    frontJP.textContent = v.masu;
+    backLabel.textContent = "ความหมาย";
+    meaning.textContent = v.mean;
+  } else {
+    frontLabel.textContent = "ความหมาย";
+    frontJP.textContent = v.mean;
+    backLabel.textContent = "รูปます";
+    meaning.textContent = v.masu;
+  }
+
+  // รูปญี่ปุ่น
+  fDict.textContent = v.dict;
+  fTe.textContent = v.te;
+  fNai.textContent = v.nai;
+  fTa.textContent = v.ta;
+
+  // คำแปลของแต่ละรูป
+  const fm = formMeanings(v.mean);
+  mDict.textContent = fm.dict;
+  mTe.textContent = fm.te;
+  mNai.textContent = fm.nai;
+  mTa.textContent = fm.ta;
+
+  card.classList.toggle("flipped", flipped);
+  progress.textContent = (idx + 1) + " / " + filtered.length;
+}
+
+function flip() {
+  flipped = !flipped;
+  card.classList.toggle("flipped", flipped);
+}
+
+function next() {
+  flipped = false;
+  idx = (idx + 1) % filtered.length;
+  render();
+}
+
+function prev() {
+  flipped = false;
+  idx = (idx - 1 + filtered.length) % filtered.length;
+  render();
+}
+
+function shuffle() {
+  for (let i = filtered.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
+  }
+  idx = 0;
+  flipped = false;
+  render();
+}
+
+// Event listeners
+card.addEventListener("click", flip);
+document.getElementById("flipBtn").addEventListener("click", flip);
+document.getElementById("nextBtn").addEventListener("click", next);
+document.getElementById("prevBtn").addEventListener("click", prev);
+document.getElementById("shuffleBtn").addEventListener("click", shuffle);
+document.getElementById("resetBtn").addEventListener("click", () => {
+  filtered = verbs.filter(v => activeGroups.has(v.g));
+  idx = 0; flipped = false; render();
+});
+
+document.querySelectorAll(".group-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const g = +btn.dataset.group;
+    if (activeGroups.has(g)) {
+      if (activeGroups.size > 1) activeGroups.delete(g);
+    } else {
+      activeGroups.add(g);
+    }
+    btn.classList.toggle("active", activeGroups.has(g));
+    applyFilter();
+  });
+});
+
+document.getElementById("modeDict").addEventListener("click", () => {
+  mode = "dict";
+  document.getElementById("modeDict").classList.add("active");
+  document.getElementById("modeMean").classList.remove("active");
+  flipped = false; render();
+});
+document.getElementById("modeMean").addEventListener("click", () => {
+  mode = "mean";
+  document.getElementById("modeMean").classList.add("active");
+  document.getElementById("modeDict").classList.remove("active");
+  flipped = false; render();
+});
+
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); next(); }
+  else if (e.key === "ArrowLeft") { e.preventDefault(); prev(); }
+  else if (e.key === "Enter") { e.preventDefault(); flip(); }
+  else if (e.key === "s" || e.key === "S") { shuffle(); }
+});
+
+// Init
+render();
+</script>
+</body>
+</html>
